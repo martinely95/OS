@@ -1,15 +1,5 @@
 #!/bin/bash
 
-check_for_end() {
-	echo "End of game?"
-	read end
-	if [ "$end" = "wins" -o "$end" = "lost" ] 
-	then
-		break
-	fi
-	#return 0
-}
-
 validate_move() {
 	if [ "$1" -le 2 -a "$2" -le 2 -a "$1" -ge 0 -a "$2" -ge 0 ] 2>/dev/null #catch error
 	then
@@ -23,14 +13,6 @@ read player1
 echo "Име на играч 2 - X:"
 read player2
 
-#multiline comment
-: 'until [ -z "$1" ]             # Until uses up arguments passed...
-    do
-    	#let "product *= $1"
-    	echo "$1"
-	shift
-    done
-'
 #variables for "x" player
 x00=0
 x01=0
@@ -45,13 +27,13 @@ x22=0
 #variables for "o" player
 o00=0
 o01=0
-o02=1
+o02=0
 o10=0
 o11=0
-o12=1
+o12=0
 o20=0
 o21=0
-o22=1
+o22=0
 
 #symbols
 v00=" "
@@ -63,10 +45,6 @@ v12=" "
 v20=" "
 v21=" "
 v22=" "
-
-
-
-#end_of_game=false
 
 while [ true ]
 do
@@ -104,13 +82,11 @@ do
 	done
 
 	#echo "$row $col"
-	var="x$row$col"
+	var="o$row$col"
 	eval $var="1"
 	val="v$row$col"
 	eval $val="o"
 	#echo "${!var}"
-
-	#check_for_end	
 
 	orows=$(( ($o00 & $o01 & $o02) | ( $o10 & $o11 & $o12 ) | ( $o20 & $o21 & $o22 ) ))
 	ocols=$(( ($o00 & $o10 & $o20) | ( $o01 & $o11 & $o21 ) | ( $o02 & $o12 & $o22 ) ))
@@ -118,7 +94,7 @@ do
 	owins=$(( $orows | $ocols | $odiags ))
 	echo "$ocols $orows $odiags $owins"
 
-	if [ "$оwins" == "1" ]
+	if [ "$owins" == "1" ]
 	then
 		echo "$player1 печели!"
 		exit 0
@@ -156,12 +132,11 @@ do
 		fi
 	done
 
-	var="o$row$col"
+	var="x$row$col"
 	eval $var="1"
 	val="v$row$col"
 	eval $val="x"
 
-	#check_for_end
 	xrows=$(( ($x00 & $x01 & $x02) | ( $x10 & $x11 & $x12 ) | ( $x20 & $x21 & $x22 ) ))
 	xcols=$(( ($x00 & $x10 & $x20) | ( $x01 & $x11 & $x21 ) | ( $x02 & $x12 & $x22 ) ))
 	xdiags=$(( ($x00 & $x11 & $x22) | ( $x02 & $x11 & $x20 ) ))
