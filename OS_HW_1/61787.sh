@@ -81,6 +81,12 @@ do
 	echo "$player1 - изберете поле (ред,колона): "
 	read player1_move
 	echo "$player1_move"
-	
+	#row="${player1_move:1:1}"
+	row=$(expr substr "$player1_move" 2 1)
+	echo "$row"
+
+	col=$(expr substr "$player1_move" 4 1)
+	echo "$col"
+	#echo "$( expr index "$player1_move" 2 )"
 	check_for_end
 done
