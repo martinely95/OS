@@ -25,53 +25,53 @@ read player2
     done
 '
 #variables for "x" player
+x00=0
+x01=0
+x02=0
+x10=0
 x11=0
 x12=0
-x13=0
+x20=0
 x21=0
 x22=0
-x23=0
-x31=0
-x32=0
-x33=0
 
 #variables for "o" player
+o01=0
+o01=0
+o02=0
+o10=0
 o11=0
 o12=0
-o13=0
+o20=0
 o21=0
 o22=0
-o23=0
-o31=0
-o32=0
-o33=0
 
 #symbols
+v00=" "
+v01=" "
+v02=" "
+v10=" "
 v11=" "
 v12=" "
-v13=" "
+v20=" "
 v21=" "
 v22=" "
-v23=" "
-v31=" "
-v32=" "
-v33=" "
 
 echo "Current board: "
-echo "|$v11|$v12|$v13|"
-echo "|$v21|$v22|$v23|"
-echo "|$v31|$v32|$v33|"
+echo "|$v00|$v01|$v02|"
+echo "|$v10|$v11|$v12|"
+echo "|$v20|$v21|$v22|"
 
 
-xrows=$(( ($x11 & $x12 & $x13) | ( $x21 & $x22 & $x23 ) | ( $x31 & $x32 & $x33 ) ))
-xcols=$(( ($x11 & $x21 & $x31) | ( $x12 & $x22 & $x32 ) | ( $x13 & $x23 & $x33 ) ))
-xdiags=$(( ($x11 & $x22 & $x33) | ( $x13 & $x22 & $x31 ) ))
+xrows=$(( ($x00 & $x01 & $x02) | ( $x10 & $x11 & $x12 ) | ( $x20 & $x21 & $x22 ) ))
+xcols=$(( ($x00 & $x10 & $x20) | ( $x01 & $x11 & $x21 ) | ( $x02 & $x12 & $x22 ) ))
+xdiags=$(( ($x00 & $x11 & $x22) | ( $x02 & $x11 & $x20 ) ))
 xwins=$(( $xrows | $xcols | $xdiags ))
 #echo "$xcols $xrows $xdiags $xwins"
 
-orows=$(( ($o11 & $o12 & $o13) | ( $o21 & $o22 & $o23 ) | ( $o31 & $o32 & $o33 ) ))
-ocols=$(( ($o11 & $o21 & $o31) | ( $o12 & $o22 & $o32 ) | ( $o13 & $o23 & $o33 ) ))
-odiags=$(( ($o11 & $o22 & $o33) | ( $o13 & $o22 & $o31 ) ))
+orows=$(( ($o00 & $o01 & $o02) | ( $o10 & $o11 & $o12 ) | ( $o20 & $o21 & $o22 ) ))
+ocols=$(( ($o00 & $o10 & $o20) | ( $o01 & $o11 & $o21 ) | ( $o02 & $o12 & $o22 ) ))
+odiags=$(( ($o00 & $o11 & $o22) | ( $o02 & $o11 & $o20 ) ))
 owins=$(( $orows | $ocols | $odiags ))
 #echo "$ocols $orows $odiags $owins"
 
