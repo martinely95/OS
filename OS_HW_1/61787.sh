@@ -10,22 +10,6 @@ check_for_end() {
 	#return 0
 }
 
-: '
-try_validate_move() {
-	{ # this is my bash try block
-
-	    validate_move "$1" "$2" "$3" &&
-	    #save your output
-	    result=$?
-	    return $result
-
-	} || { # this is catch block
-	    # save log for exception 
-	    echo "fu"
-	    return 0
-	}
-} '
-
 validate_move() {
 	#echo "$1 $2"
 	if [ "$1" -le 2 -a "$2" -le 2 -a "$1" -ge 0 -a "$2" -ge 0 ] 2>/dev/null #catch error
@@ -58,7 +42,7 @@ x01=0
 x02=0
 x10=0
 x11=0
-x12=0
+x12=1 #TODO: change to 0
 x20=0
 x21=0
 x22=0
@@ -80,15 +64,11 @@ v01=" "
 v02=" "
 v10=" "
 v11=" "
-v12=" "
+v12="x"
 v20=" "
 v21=" "
 v22=" "
 
-echo "Current board: "
-echo "|$v00|$v01|$v02|"
-echo "|$v10|$v11|$v12|"
-echo "|$v20|$v21|$v22|"
 
 
 xrows=$(( ($x00 & $x01 & $x02) | ( $x10 & $x11 & $x12 ) | ( $x20 & $x21 & $x22 ) ))
@@ -106,6 +86,13 @@ owins=$(( $orows | $ocols | $odiags ))
 end_of_game=false
 while [ true ]
 do
+
+	echo "Текущо състояние на играта: "
+	echo "|$v00|$v01|$v02|"
+	echo "|$v10|$v11|$v12|"
+	echo "|$v20|$v21|$v22|"
+	echo ""
+
 	echo "$player1 - изберете поле (ред,колона): "
 	valid=0
 	while [ "$valid" -eq 0 ]
@@ -123,6 +110,20 @@ do
 			echo "Невалидна позиция. Моля въведете отново: "
 		fi
 	done
+
+	#echo "$row $col"
+	var="x$row$col"
+	eval $var="1"
+	#echo "${!var}"
+
+	check_for_end
+
+
+	echo "Текущо състояние на играта: "
+	echo "|$v00|$v01|$v02|"
+	echo "|$v10|$v11|$v12|"
+	echo "|$v20|$v21|$v22|"
+	echo ""
 
 	echo "$player2 - изберете поле (ред,колона): "
 	valid=0
