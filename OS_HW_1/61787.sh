@@ -10,9 +10,9 @@ check_for_end() {
 	#return 0
 }
 
-echo "Player 1 name (o):"
+echo "Име на играч 1 - O:"
 read player1
-echo "Player 2 name (x):"
+echo "Име на играч 2 - X:"
 read player2
 #echo $player1$player2
 
@@ -78,7 +78,7 @@ owins=$(( $orows | $ocols | $odiags ))
 end_of_game=false
 while [ true ]
 do
-	echo "$player1 move: (x,y)"
+	echo "$player1 - изберете поле (ред,колона): "
 	read player1_move
 	echo "$player1_move"
 	
