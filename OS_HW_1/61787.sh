@@ -10,6 +10,15 @@ check_for_end() {
 	#return 0
 }
 
+validate_move() {
+	#echo "$1 $2"
+	if [ "$1" -gt 2 -o "$2" -gt 2 -o "$1" -lt 0 -o "$2" -lt 0 ]
+	then
+		return 0
+	fi
+	return 1
+}
+
 echo "Име на играч 1 - O:"
 read player1
 echo "Име на играч 2 - X:"
@@ -79,14 +88,22 @@ end_of_game=false
 while [ true ]
 do
 	echo "$player1 - изберете поле (ред,колона): "
-	read player1_move
-	echo "$player1_move"
-	#row="${player1_move:1:1}"
-	row=$(expr substr "$player1_move" 2 1)
-	echo "$row"
+	valid=0
+	while [ "$valid" -eq 0 ]
+	do
 
-	col=$(expr substr "$player1_move" 4 1)
-	echo "$col"
-	#echo "$( expr index "$player1_move" 2 )"
+		read player1_move
+		row=$(expr substr "$player1_move" 2 1)
+		col=$(expr substr "$player1_move" 4 1)
+
+		validate_move "$row" "$col"
+		valid=$?
+
+		if [ "$valid" -ne 1 ] 
+		then
+			echo "Невалидна позиция. Моля въведете отново: "
+		fi
+	done
+	echo "valid"
 	check_for_end
 done
