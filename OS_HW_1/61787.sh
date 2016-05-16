@@ -10,13 +10,32 @@ check_for_end() {
 	#return 0
 }
 
+: '
+try_validate_move() {
+	{ # this is my bash try block
+
+	    validate_move "$1" "$2" "$3" &&
+	    #save your output
+	    result=$?
+	    return $result
+
+	} || { # this is catch block
+	    # save log for exception 
+	    echo "fu"
+	    return 0
+	}
+} '
+
 validate_move() {
 	#echo "$1 $2"
-	if [ "$1" -gt 2 -o "$2" -gt 2 -o "$1" -lt 0 -o "$2" -lt 0 ]
+	if [ "$1" -le 2 -a "$2" -le 2 -a "$1" -ge 0 -a "$2" -ge 0 ] 2>/dev/null #catch error
 	then
-		return 0
+		return 1
 	fi
-	return 1
+	return 0
+
+	#$2 contains info for which player are we checking
+	#TODO: check if there is already something on the position
 }
 
 echo "Име на играч 1 - O:"
@@ -96,7 +115,25 @@ do
 		row=$(expr substr "$player1_move" 2 1)
 		col=$(expr substr "$player1_move" 4 1)
 
-		validate_move "$row" "$col"
+		validate_move "$row" "$col" 1
+		valid=$?
+
+		if [ "$valid" -ne 1 ] 
+		then
+			echo "Невалидна позиция. Моля въведете отново: "
+		fi
+	done
+
+	echo "$player2 - изберете поле (ред,колона): "
+	valid=0
+	while [ "$valid" -eq 0 ]
+	do
+
+		read player2_move
+		row=$(expr substr "$player2_move" 2 1)
+		col=$(expr substr "$player2_move" 4 1)
+
+		validate_move "$row" "$col" 2
 		valid=$?
 
 		if [ "$valid" -ne 1 ] 
