@@ -11,22 +11,17 @@ check_for_end() {
 }
 
 validate_move() {
-	#echo "$1 $2"
 	if [ "$1" -le 2 -a "$2" -le 2 -a "$1" -ge 0 -a "$2" -ge 0 ] 2>/dev/null #catch error
 	then
 		return 1
 	fi
 	return 0
-
-	#$2 contains info for which player are we checking
-	#TODO: check if there is already something on the position
 }
 
 echo "Име на играч 1 - O:"
 read player1
 echo "Име на играч 2 - X:"
 read player2
-#echo $player1$player2
 
 #multiline comment
 : 'until [ -z "$1" ]             # Until uses up arguments passed...
@@ -42,7 +37,7 @@ x01=0
 x02=0
 x10=0
 x11=0
-x12=1 #TODO: change to 0
+x12=0
 x20=0
 x21=0
 x22=0
@@ -64,26 +59,15 @@ v01=" "
 v02=" "
 v10=" "
 v11=" "
-v12="x"
+v12=" "
 v20=" "
 v21=" "
 v22=" "
 
 
 
-xrows=$(( ($x00 & $x01 & $x02) | ( $x10 & $x11 & $x12 ) | ( $x20 & $x21 & $x22 ) ))
-xcols=$(( ($x00 & $x10 & $x20) | ( $x01 & $x11 & $x21 ) | ( $x02 & $x12 & $x22 ) ))
-xdiags=$(( ($x00 & $x11 & $x22) | ( $x02 & $x11 & $x20 ) ))
-xwins=$(( $xrows | $xcols | $xdiags ))
-#echo "$xcols $xrows $xdiags $xwins"
+#end_of_game=false
 
-orows=$(( ($o00 & $o01 & $o02) | ( $o10 & $o11 & $o12 ) | ( $o20 & $o21 & $o22 ) ))
-ocols=$(( ($o00 & $o10 & $o20) | ( $o01 & $o11 & $o21 ) | ( $o02 & $o12 & $o22 ) ))
-odiags=$(( ($o00 & $o11 & $o22) | ( $o02 & $o11 & $o20 ) ))
-owins=$(( $orows | $ocols | $odiags ))
-#echo "$ocols $orows $odiags $owins"
-
-end_of_game=false
 while [ true ]
 do
 
@@ -102,22 +86,43 @@ do
 		row=$(expr substr "$player1_move" 2 1)
 		col=$(expr substr "$player1_move" 4 1)
 
-		validate_move "$row" "$col" 1
+		validate_move "$row" "$col"
 		valid=$?
 
 		if [ "$valid" -ne 1 ] 
 		then
 			echo "Невалидна позиция. Моля въведете отново: "
-		fi
+		else
+			val="v$row$col"
+			tmp=${!val}
+			if ! [ "$tmp" == " " ] 
+			then
+				echo "Невалидна позиция. На позицията вече има $tmp. Моля въведете отново: "
+				valid=0
+			fi
+		fi				
 	done
 
 	#echo "$row $col"
 	var="x$row$col"
 	eval $var="1"
+	val="v$row$col"
+	eval $val="o"
 	#echo "${!var}"
 
-	check_for_end
+	#check_for_end	
 
+	orows=$(( ($o00 & $o01 & $o02) | ( $o10 & $o11 & $o12 ) | ( $o20 & $o21 & $o22 ) ))
+	ocols=$(( ($o00 & $o10 & $o20) | ( $o01 & $o11 & $o21 ) | ( $o02 & $o12 & $o22 ) ))
+	odiags=$(( ($o00 & $o11 & $o22) | ( $o02 & $o11 & $o20 ) ))
+	owins=$(( $orows | $ocols | $odiags ))
+	echo "$ocols $orows $odiags $owins"
+
+	if [ "$оwins" == "1" ]
+	then
+		echo "$player1 печели!"
+		exit 0
+	fi
 
 	echo "Текущо състояние на играта: "
 	echo "|$v00|$v01|$v02|"
@@ -134,14 +139,38 @@ do
 		row=$(expr substr "$player2_move" 2 1)
 		col=$(expr substr "$player2_move" 4 1)
 
-		validate_move "$row" "$col" 2
+		validate_move "$row" "$col"
 		valid=$?
 
 		if [ "$valid" -ne 1 ] 
 		then
 			echo "Невалидна позиция. Моля въведете отново: "
+		else
+			val="v$row$col"
+			tmp=${!val}
+			if ! [ "$tmp" == " " ] 
+			then
+				echo "Невалидна позиция. На позицията вече има $tmp. Моля въведете отново: "
+				valid=0
+			fi
 		fi
 	done
-	echo "valid"
-	check_for_end
+
+	var="o$row$col"
+	eval $var="1"
+	val="v$row$col"
+	eval $val="x"
+
+	#check_for_end
+	xrows=$(( ($x00 & $x01 & $x02) | ( $x10 & $x11 & $x12 ) | ( $x20 & $x21 & $x22 ) ))
+	xcols=$(( ($x00 & $x10 & $x20) | ( $x01 & $x11 & $x21 ) | ( $x02 & $x12 & $x22 ) ))
+	xdiags=$(( ($x00 & $x11 & $x22) | ( $x02 & $x11 & $x20 ) ))
+	xwins=$(( $xrows | $xcols | $xdiags ))
+	echo "$xcols $xrows $xdiags $xwins"
+
+	if [ "$xwins" == "1" ]
+	then
+		echo "$player2 печели!"
+		exit 0
+	fi
 done
