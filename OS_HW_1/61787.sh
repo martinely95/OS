@@ -63,10 +63,18 @@ echo "|$v21|$v22|$v23|"
 echo "|$v31|$v32|$v33|"
 
 
-rows=$(( ($x11 & $x12 & $x13) | ( $x21 & $x22 & $x23 ) | ( $x31 & $x32 & $x33 ) ))
-cols=$(( ($x11 & $x21 & $x31) | ( $x12 & $x22 & $x32 ) | ( $x13 & $x23 & $x33 ) ))
-diags=$(( ($x11 & $x22 & $x33) | ( $x13 & $x22 & $x31 ) ))
-echo "$cols $rows $diags"
+xrows=$(( ($x11 & $x12 & $x13) | ( $x21 & $x22 & $x23 ) | ( $x31 & $x32 & $x33 ) ))
+xcols=$(( ($x11 & $x21 & $x31) | ( $x12 & $x22 & $x32 ) | ( $x13 & $x23 & $x33 ) ))
+xdiags=$(( ($x11 & $x22 & $x33) | ( $x13 & $x22 & $x31 ) ))
+xwins=$(( $xrows | $xcols | $xdiags ))
+#echo "$xcols $xrows $xdiags $xwins"
+
+orows=$(( ($o11 & $o12 & $o13) | ( $o21 & $o22 & $o23 ) | ( $o31 & $o32 & $o33 ) ))
+ocols=$(( ($o11 & $o21 & $o31) | ( $o12 & $o22 & $o32 ) | ( $o13 & $o23 & $o33 ) ))
+odiags=$(( ($o11 & $o22 & $o33) | ( $o13 & $o22 & $o31 ) ))
+owins=$(( $orows | $ocols | $odiags ))
+#echo "$ocols $orows $odiags $owins"
+
 end_of_game=false
 while [ true ]
 do
