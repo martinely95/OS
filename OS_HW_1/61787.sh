@@ -8,8 +8,10 @@ validate_move() {
 	return 0
 }
 
+echo ""
 echo "Име на играч 1 - O:"
 read player1
+echo ""
 echo "Име на играч 2 - X:"
 read player2
 
@@ -49,6 +51,7 @@ v22=" "
 while [ true ]
 do
 
+	echo ""
 	echo "Текущо състояние на играта: "
 	echo "|$v00|$v01|$v02|"
 	echo "|$v10|$v11|$v12|"
@@ -92,14 +95,25 @@ do
 	ocols=$(( ($o00 & $o10 & $o20) | ( $o01 & $o11 & $o21 ) | ( $o02 & $o12 & $o22 ) ))
 	odiags=$(( ($o00 & $o11 & $o22) | ( $o02 & $o11 & $o20 ) ))
 	owins=$(( $orows | $ocols | $odiags ))
-	echo "$ocols $orows $odiags $owins"
+	#echo "$ocols $orows $odiags $owins"
+
+	remi=$(( $x00 + $x01 + $x02 + $x10 + $x11 + $x12 + $x20 + $x21 + $x22 + $o00 + $o01 + $o02 + $o10 + $o11 + $o12 + $o20 + $o21 + $o22 ))
+	#echo $remi
 
 	if [ "$owins" == "1" ]
 	then
-		echo "$player1 печели!"
-		exit 0
+		echo ""
+		echo "Печели $player1"
+		break
 	fi
 
+	if [ "$remi" == "9" ]
+	then
+		echo "Играта е реми"
+		break
+	fi
+
+	echo ""
 	echo "Текущо състояние на играта: "
 	echo "|$v00|$v01|$v02|"
 	echo "|$v10|$v11|$v12|"
@@ -141,11 +155,28 @@ do
 	xcols=$(( ($x00 & $x10 & $x20) | ( $x01 & $x11 & $x21 ) | ( $x02 & $x12 & $x22 ) ))
 	xdiags=$(( ($x00 & $x11 & $x22) | ( $x02 & $x11 & $x20 ) ))
 	xwins=$(( $xrows | $xcols | $xdiags ))
-	echo "$xcols $xrows $xdiags $xwins"
+	#echo "$xcols $xrows $xdiags $xwins"
+	remi=$(( $x00 + $x01 + $x02 + $x10 + $x11 + $x12 + $x20 + $x21 + $x22 + $o00 + $o01 + $o02 + $o10 + $o11 + $o12 + $o20 + $o21 + $o22 ))
+	#echo $remi
 
 	if [ "$xwins" == "1" ]
 	then
-		echo "$player2 печели!"
-		exit 0
+		echo ""
+		echo "Печели $player2"
+		break
 	fi
+
+	if [ "$remi" == "9" ]
+	then
+		echo "Играта е реми"
+		break
+	fi
+
 done
+
+	echo ""
+	echo "Текущо състояние на играта: "
+	echo "|$v00|$v01|$v02|"
+	echo "|$v10|$v11|$v12|"
+	echo "|$v20|$v21|$v22|"
+	echo ""
