@@ -36,15 +36,15 @@ x21=0
 x22=0
 
 #variables for "o" player
+o00=0
 o01=0
-o01=0
-o02=0
+o02=1
 o10=0
 o11=0
-o12=0
+o12=1
 o20=0
 o21=0
-o22=0
+o22=1
 
 #symbols
 v00=" "
