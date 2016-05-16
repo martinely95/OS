@@ -31,8 +31,8 @@ x13=0
 x21=0
 x22=0
 x23=0
-v31=0
-v32=0
+x31=0
+x32=0
 x33=0
 
 #variables for "o" player
@@ -42,8 +42,8 @@ o13=0
 o21=0
 o22=0
 o23=0
-v31=0
-v32=0
+o31=0
+o32=0
 o33=0
 
 #symbols
@@ -62,6 +62,11 @@ echo "|$v11|$v12|$v13|"
 echo "|$v21|$v22|$v23|"
 echo "|$v31|$v32|$v33|"
 
+
+rows=$(( ($x11 & $x12 & $x13) | ( $x21 & $x22 & $x23 ) | ( $x31 & $x32 & $x33 ) ))
+cols=$(( ($x11 & $x21 & $x31) | ( $x12 & $x22 & $x32 ) | ( $x13 & $x23 & $x33 ) ))
+diags=$(( ($x11 & $x22 & $x33) | ( $x13 & $x22 & $x31 ) ))
+echo "$cols $rows $diags"
 end_of_game=false
 while [ true ]
 do
