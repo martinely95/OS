@@ -8,12 +8,21 @@ validate_move() {
 	return 0
 }
 
+timestamp() {
+  date +"%s"
+}
+
 echo ""
 echo "Име на играч 1 - O:"
 read player1
 echo ""
 echo "Име на играч 2 - X:"
 read player2
+
+mkdir .tic-tac-toe 2>/dev/null
+
+ts=$(timestamp)
+touch ./.tic-tac-toe/$player1-$player2-$ts.log
 
 #variables for "x" player
 x00=0
@@ -84,6 +93,8 @@ do
 		fi				
 	done
 
+	echo "$player1 - o: $player1_move" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+
 	#echo "$row $col"
 	var="o$row$col"
 	eval $var="1"
@@ -104,12 +115,15 @@ do
 	then
 		echo ""
 		echo "Печели $player1"
+		echo "Печели $player1" >> ./.tic-tac-toe/$player1-$player2-$ts.log
 		break
 	fi
 
 	if [ "$remi" == "9" ]
 	then
+		echo ""
 		echo "Играта е реми"
+		echo "Играта е реми" >> ./.tic-tac-toe/$player1-$player2-$ts.log
 		break
 	fi
 
@@ -146,6 +160,8 @@ do
 		fi
 	done
 
+	echo "$player2 - x: $player2_move" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+
 	var="x$row$col"
 	eval $var="1"
 	val="v$row$col"
@@ -163,12 +179,15 @@ do
 	then
 		echo ""
 		echo "Печели $player2"
+		echo "Печели $player2" >> ./.tic-tac-toe/$player1-$player2-$ts.log
 		break
 	fi
 
 	if [ "$remi" == "9" ]
 	then
+		echo ""
 		echo "Играта е реми"
+		echo "Играта е реми" >> ./.tic-tac-toe/$player1-$player2-$ts.log
 		break
 	fi
 
