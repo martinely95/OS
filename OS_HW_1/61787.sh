@@ -12,20 +12,22 @@ timestamp() {
   date +"%s"
 }
 
-echo ""
 echo "Име на играч 1 - O:"
 read player1
-echo ""
 echo "Име на играч 2 - X:"
 read player2
+echo ""
 
 mkdir .tic-tac-toe 2>/dev/null
 
 ts=$(timestamp)
 touch ./.tic-tac-toe/$player1-$player2-$ts.log
 
-playing="y"
-while [ $playing == "y" ]
+#remove:
+#exit 0
+
+playing='y'
+while [ "$playing" == 'y' ]
 do
 
 	#variables for "x" player
@@ -64,21 +66,16 @@ do
 	while [ true ]
 	do
 
-		echo ""
-		echo "Текущо състояние на играта: "
-		echo "|$v00|$v01|$v02|"
-		echo "|$v10|$v11|$v12|"
-		echo "|$v20|$v21|$v22|"
-		echo ""
+		
 
-		echo "$player1 - изберете поле (ред,колона): "
+		echo "$player1 - изберете поле (ред, колона): "
 		valid=0
 		while [ "$valid" -eq 0 ]
 		do
 
 			read player1_move
 			row=$(expr substr "$player1_move" 2 1)
-			col=$(expr substr "$player1_move" 4 1)
+			col=$(expr substr "$player1_move" 5 1)
 
 			validate_move "$row" "$col"
 			valid=$?
@@ -97,7 +94,8 @@ do
 			fi				
 		done
 
-		echo "$player1 - o: $player1_move" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+		#echo "$player1 - o: $player1_move" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+		echo "$player1 - $player1_move" >> ./.tic-tac-toe/$player1-$player2-$ts.log
 
 		#echo "$row $col"
 		var="o$row$col"
@@ -105,6 +103,13 @@ do
 		val="v$row$col"
 		eval $val="o"
 		#echo "${!var}"
+
+		echo ""
+		#cho "Текущо състояние на играта: "
+		echo "|$v00|$v01|$v02|"
+		echo "|$v10|$v11|$v12|"
+		echo "|$v20|$v21|$v22|"
+		echo ""
 
 		orows=$(( ($o00 & $o01 & $o02) | ( $o10 & $o11 & $o12 ) | ( $o20 & $o21 & $o22 ) ))
 		ocols=$(( ($o00 & $o10 & $o20) | ( $o01 & $o11 & $o21 ) | ( $o02 & $o12 & $o22 ) ))
@@ -117,35 +122,35 @@ do
 
 		if [ "$owins" == "1" ]
 		then
-			echo ""
 			echo "Печели $player1"
+			echo ""
+
 			echo "Печели $player1" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+			echo "" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+			
 			break
 		fi
 
 		if [ "$remi" == "9" ]
 		then
-			echo ""
 			echo "Играта е реми"
+			echo ""
+
 			echo "Играта е реми" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+			echo "" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+
 			break
 		fi
 
-		echo ""
-		echo "Текущо състояние на играта: "
-		echo "|$v00|$v01|$v02|"
-		echo "|$v10|$v11|$v12|"
-		echo "|$v20|$v21|$v22|"
-		echo ""
 
-		echo "$player2 - изберете поле (ред,колона): "
+		echo "$player2 - изберете поле (ред, колона): "
 		valid=0
 		while [ "$valid" -eq 0 ]
 		do
 
 			read player2_move
 			row=$(expr substr "$player2_move" 2 1)
-			col=$(expr substr "$player2_move" 4 1)
+			col=$(expr substr "$player2_move" 5 1)
 
 			validate_move "$row" "$col"
 			valid=$?
@@ -164,12 +169,20 @@ do
 			fi
 		done
 
-		echo "$player2 - x: $player2_move" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+		#echo "$player2 - x: $player2_move" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+		echo "$player2 - $player2_move" >> ./.tic-tac-toe/$player1-$player2-$ts.log
 
 		var="x$row$col"
 		eval $var="1"
 		val="v$row$col"
 		eval $val="x"
+
+		echo ""
+		#echo "Текущо състояние на играта: "
+		echo "|$v00|$v01|$v02|"
+		echo "|$v10|$v11|$v12|"
+		echo "|$v20|$v21|$v22|"
+		echo ""
 
 		xrows=$(( ($x00 & $x01 & $x02) | ( $x10 & $x11 & $x12 ) | ( $x20 & $x21 & $x22 ) ))
 		xcols=$(( ($x00 & $x10 & $x20) | ( $x01 & $x11 & $x21 ) | ( $x02 & $x12 & $x22 ) ))
@@ -181,30 +194,31 @@ do
 
 		if [ "$xwins" == "1" ]
 		then
-			echo ""
 			echo "Печели $player2"
+			echo ""
+			
 			echo "Печели $player2" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+			echo "" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+
 			break
 		fi
 
 		if [ "$remi" == "9" ]
-		then
-			echo ""
+		then			
 			echo "Играта е реми"
+			echo ""
+
 			echo "Играта е реми" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+			echo "" >> ./.tic-tac-toe/$player1-$player2-$ts.log
+
 			break
 		fi
 
 	done
 
-	echo ""
-	echo "Финално състояние на играта: "
-	echo "|$v00|$v01|$v02|"
-	echo "|$v10|$v11|$v12|"
-	echo "|$v20|$v21|$v22|"
-	echo ""
-
 	echo 'Повторна игра ? (y/n):'
 	read playing
+
+	echo ""
 
 done
