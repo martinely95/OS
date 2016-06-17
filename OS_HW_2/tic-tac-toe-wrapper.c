@@ -71,6 +71,7 @@ main(int argc, char* argv[]){
         // if (fcntl(fd1, F_GETFD)) { // if fd1 is not closed
         //     close(fd1);
         // }
+        char logFileDir[256] = "./.tic-tac-toe/";
         pipe(fd);
         if((father = fork()) == -1)
         {
@@ -102,14 +103,55 @@ main(int argc, char* argv[]){
 
                 /* Read in a string from the pipe */
                 nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
-                printf("Received string: %s", readbuffer);
+                snprintf(logFileDir + 15, 256 - 15, "%s", readbuffer); 
+                // printf("Received string: %s", readbuffer);
         }
-        
+        printf("Received string: %s", readbuffer);
+        printf("Received string: %s", logFileDir);
         wait(&status);
         returned_status = status / 256;
 
-        
+        // if (fcntl(fd1, F_GETFD)) { // if fd1 is not closed
+        //     close(fd1);
+        // }
+        // char ime1[64];
+        // char ime2[64];
+        // pipe(fd);
+        // if((father = fork()) == -1)
+        // {
+        //         perror("fork");
+        //         exit(1);
+        // }
 
+        // if (father == 0)  // child
+        // {
+
+        //     if( ( fd1 = open("lo", O_RDONLY, 0400 ) ) == -1 ){
+        //             write(2, "Something went wrong!\n", sizeof("Something went wrong!\n")-1);
+        //             exit(99);
+        //     }
+        //     else {
+        //             close(fd[0]);
+        //             // dup(fd1);
+        //             dup2(fd[1], 1);
+
+        //             /* Send "string" through the input side of pipe */
+        //             //write(fd[0], string, (strlen(string)+1));
+        //             execlp("head", "head", "-n", "1", "temp", NULL);
+        //     }          
+        // }
+
+        // if (father > 0) {
+        //         /* Parent process closes up output side of pipe */
+        //         close(fd[1]);
+
+        //         /* Read in a string from the pipe */
+        //         nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
+        //         printf("Received string: %s", readbuffer);
+        // }
+        
+        // wait(&status);
+        // returned_status = status / 256;
 
         if ( father > 0 ){
             //father body
