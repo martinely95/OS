@@ -60,6 +60,7 @@ main(int argc, char* argv[]){
             }          
         }
         
+        // we create a file, we have to wait
         wait(&status);
         returned_status = status / 256;
 
@@ -117,8 +118,6 @@ main(int argc, char* argv[]){
         //printf("%s\n%s\n%s\n", ime1, ime2, logFileName);
 
         // vzemame obsh broj igri
-
-
         int fd[2];//,  // file descriptors for the pipe, nbytes which are read from the pipe
         pipe(fd);
 
@@ -139,8 +138,8 @@ main(int argc, char* argv[]){
             execlp("grep", "grep", "Печели\\|реми", logFileName, NULL);       
         }
 
-        wait(&status);
-        returned_status = status / 256;
+        // wait(&status);
+        // returned_status = status / 256;
 
         close(fd[STDOUT]);
         // wc na redovete varnati ot grep
@@ -166,23 +165,89 @@ main(int argc, char* argv[]){
             execlp("wc", "wc", "-l", NULL);       
         }
 
-        wait(&status);
-        returned_status = status / 256;
+        // wait(&status);
+        // returned_status = status / 256;
 
         close(fd2[STDOUT]);
         close(fd[STDIN]); 
 
         /* Read in a string from the pipe */
+        readbuffer[0]='\0';
         nbytes = read(fd2[STDIN], readbuffer, sizeof(readbuffer));
-        write(STDOUT, "Received string: \n", sizeof("Received string: \n"));
-        write(STDOUT, readbuffer, sizeof(nbytes));
+        write(STDOUT, "Games played: \n", sizeof("Games played: \n")-1);
+        write(STDOUT, readbuffer, sizeof(nbytes)-1);
         
         wait(&status);
         returned_status = status / 256;
 
         close(fd2[STDIN]); 
 
+        // masovo kopirane na kod
+        // do not do this at home
+        // vzemame obsh broj igri
+        // int fd[2];//,  // file descriptors for the pipe, nbytes which are read from the pipe
+        pipe(fd);
 
+        // grep na pobedi i remita
+        if((father = fork()) == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+
+        if (father == 0)  // child
+        {
+            chdir("./.tic-tac-toe");
+            //execlp("pwd", "pwd", NULL);  
+            close(fd[STDIN]); //close the side of the pipe that will not be used
+            dup2(fd[STDOUT], STDOUT);
+            //write(STDOUT, "\n", sizeof("\n"));
+            execlp("grep", "grep", "реми", logFileName, NULL);       
+        }
+
+        // wait(&status);
+        // returned_status = status / 256;
+
+        close(fd[STDOUT]);
+        // wc na redovete varnati ot grep
+
+        // int fd2[2]; // this is where the fun starts
+        pipe(fd2);
+        if((father = fork()) == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+
+        // int nbytes;
+        // char readbuffer[4096];
+
+        if (father == 0)  // child
+        {
+            close(fd2[STDIN]); 
+
+            dup2(fd[STDIN], STDIN);
+            dup2(fd2[STDOUT], STDOUT);
+
+            execlp("wc", "wc", "-l", NULL);       
+        }
+
+        // wait(&status);
+        // returned_status = status / 256;
+
+        close(fd2[STDOUT]);
+        close(fd[STDIN]); 
+
+        /* Read in a string from the pipe */
+        readbuffer[0]='\0';
+        nbytes = read(fd2[STDIN], readbuffer, sizeof(readbuffer));
+        write(STDOUT, "Remi: \n", sizeof("Remi: \n")-1);
+        write(STDOUT, readbuffer, sizeof(nbytes)-1);
+        
+        wait(&status);
+        returned_status = status / 256;
+
+        close(fd2[STDIN]); 
 
 
 
@@ -197,7 +262,11 @@ main(int argc, char* argv[]){
             // status returns the PID 
             
             
-            printf("Status of execution of tic-tac-toe: %d\n", returned_status);
+            write(STDOUT, "Status of execution of tic-tac-toe: \n", sizeof("Status of execution of tic-tac-toe: \n"));
+            readbuffer[0] = returned_status + '0';
+            readbuffer[1] = '\0';
+            write(STDOUT, readbuffer, sizeof(returned_status)-1);
+
             if (returned_status == 99) {
                 write(STDOUT, "Unsuccesful opening of file.\n", sizeof("Unsuccesful opening of file.\n")-1);
             } 
