@@ -16,18 +16,17 @@ main(int argc, char* argv[]){
     // we run the wrapper without arguments
     if (argc == 1) {
 
-        //int fd[2], nbytes; // file descriptors for the pipe, nbytes which are read from the pipe
+       
         int fd1;
-        //char readbuffer[4096]; 
-        int i,j;
+        int i;
         int status;
         int returned_status;
         int father;
 
         if((father = fork()) == -1)
         {
-                perror("fork");
-                exit(1);
+            perror("fork");
+            exit(1);
         }
 
         if (father == 0)  // child
@@ -42,22 +41,22 @@ main(int argc, char* argv[]){
         returned_status = status / 256;
 
         //pipe(fd);
-        // vzemame log failovete sortirani
+        // vzemame log failovete sortirani i go slagame vav faila temp
         if((father = fork()) == -1)
         {
-                perror("fork");
-                exit(1);
+            perror("fork");
+            exit(1);
         }
 
         if (father == 0)  // child
         {
             if( ( fd1 = open("temp", O_WRONLY|O_CREAT|O_TRUNC, 0600 ) ) == -1 ){
-                    write(2, "Something went wrong!\n", sizeof("Something went wrong!\n")-1);
-                    exit(99);
+                write(2, "Something went wrong!\n", sizeof("Something went wrong!\n")-1);
+                exit(99);
             }
             else {                
-                    dup2(fd1, STDOUT);
-                    execlp("ls", "ls", "./.tic-tac-toe", "-t", NULL);
+                dup2(fd1, STDOUT);
+                execlp("ls", "ls", "./.tic-tac-toe", "-t", NULL);
             }          
         }
         
@@ -115,7 +114,81 @@ main(int argc, char* argv[]){
 
         close(fd1);
 
-        printf("%s\n%s\n%s\n", ime1, ime2, logFileName);
+        //printf("%s\n%s\n%s\n", ime1, ime2, logFileName);
+
+        // vzemame obsh broj igri
+
+
+        int fd[2];//,  // file descriptors for the pipe, nbytes which are read from the pipe
+        pipe(fd);
+
+        // grep na pobedi i remita
+        if((father = fork()) == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+
+        if (father == 0)  // child
+        {
+            chdir("./.tic-tac-toe");
+            //execlp("pwd", "pwd", NULL);  
+            close(fd[STDIN]); //close the side of the pipe that will not be used
+            dup2(fd[STDOUT], STDOUT);
+            //write(STDOUT, "\n", sizeof("\n"));
+            execlp("grep", "grep", "Печели\\|реми", logFileName, NULL);       
+        }
+
+        wait(&status);
+        returned_status = status / 256;
+
+        close(fd[STDOUT]);
+        // wc na redovete varnati ot grep
+
+        int fd2[2]; // this is where the fun starts
+        pipe(fd2);
+        if((father = fork()) == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+
+        int nbytes;
+        char readbuffer[4096];
+
+        if (father == 0)  // child
+        {
+            close(fd2[STDIN]); 
+
+            dup2(fd[STDIN], STDIN);
+            dup2(fd2[STDOUT], STDOUT);
+
+            execlp("wc", "wc", "-l", NULL);       
+        }
+
+        wait(&status);
+        returned_status = status / 256;
+
+        close(fd2[STDOUT]);
+        close(fd[STDIN]); 
+
+        /* Read in a string from the pipe */
+        nbytes = read(fd2[STDIN], readbuffer, sizeof(readbuffer));
+        write(STDOUT, "Received string: \n", sizeof("Received string: \n"));
+        write(STDOUT, readbuffer, sizeof(nbytes));
+        
+        wait(&status);
+        returned_status = status / 256;
+
+        close(fd2[STDIN]); 
+
+
+
+
+
+
+
+
         
 
 
