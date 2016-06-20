@@ -4,17 +4,21 @@
 #include <sys/wait.h> // wait
 #include <stdlib.h> // exit
 #include <fcntl.h>  // O_WRONLY|O_CREAT|O_TRUNC
-
+#include <string.h> // strcpy
 
 
 main(int argc, char* argv[]){
+
+    const int STDIN = 0;
     const int STDOUT = 1;
+    const int STDERR = 2;
+
+    // we run the wrapper without arguments
     if (argc == 1) {
-        //debugging
-        // printf("%s", argv[1]);
-        int fd[2], nbytes; // file descriptors for the pipe, nbytes which are read from the pipe
+
+        //int fd[2], nbytes; // file descriptors for the pipe, nbytes which are read from the pipe
         int fd1;
-        char readbuffer[4096]; 
+        //char readbuffer[4096]; 
         int i,j;
         int status;
         int returned_status;
@@ -28,17 +32,17 @@ main(int argc, char* argv[]){
 
         if (father == 0)  // child
         {
+            //да бъде посредник за играта (да я стартира и да изчаква нейното приключване):
             if ( execl("./tic-tac-toe.sh", "tic-tac-toe", NULL) == -1 ) {
                 exit(99);
             }
-            exit(0);
         }
 
         wait(&status);
         returned_status = status / 256;
 
         //pipe(fd);
-        
+        // vzemame log failovete sortirani
         if((father = fork()) == -1)
         {
                 perror("fork");
@@ -47,111 +51,73 @@ main(int argc, char* argv[]){
 
         if (father == 0)  // child
         {
-
             if( ( fd1 = open("temp", O_WRONLY|O_CREAT|O_TRUNC, 0600 ) ) == -1 ){
                     write(2, "Something went wrong!\n", sizeof("Something went wrong!\n")-1);
                     exit(99);
             }
-            else {
-                     /* Child process closes up output side of pipe */
-                    // close(1);
-                    // dup(fd1);
-                    dup2(fd1, 1);
-
-                    /* Send "string" through the input side of pipe */
-                    //write(fd[0], string, (strlen(string)+1));
+            else {                
+                    dup2(fd1, STDOUT);
                     execlp("ls", "ls", "./.tic-tac-toe", "-t", NULL);
             }          
         }
-        //todo: da podam na funkciqta temp faila vmesto pipe
         
         wait(&status);
         returned_status = status / 256;
 
-        // if (fcntl(fd1, F_GETFD)) { // if fd1 is not closed
-        //     close(fd1);
-        // }
-        char logFileDir[256] = "./.tic-tac-toe/";
-        pipe(fd);
-        if((father = fork()) == -1)
-        {
-                perror("fork");
-                exit(1);
+        // vzemame imeto na log faila
+        char logFileName[64];
+
+
+        //vzemame imeto na horata ot log faila
+        char ime1[64];
+        char ime2[64];
+
+
+        int name = 0;
+        if (( fd1=open("temp", O_RDONLY) ) == -1) {
+            write(2, "Operation open failed!\n", sizeof("Operation open failed!\n")-1);
+            exit(99);
         }
 
-        if (father == 0)  // child
-        {
-
-            if( ( fd1 = open("temp", O_RDONLY, 0400 ) ) == -1 ){
-                    write(2, "Something went wrong!\n", sizeof("Something went wrong!\n")-1);
-                    exit(99);
+        i=0;
+        int name2 = 0;
+        char c[2] = " \0";
+        while ( read(fd1, &c, 1) ) {
+            // byte == int
+            if (c[0] != '-' && name == 0) {
+                ime1[i] = c[0];
+                logFileName[i] = c[0];
             }
-            else {
-                    close(fd[0]);
-                    // dup(fd1);
-                    dup2(fd[1], 1);
-
-                    /* Send "string" through the input side of pipe */
-                    //write(fd[0], string, (strlen(string)+1));
-                    execlp("head", "head", "-n", "1", "temp", NULL);
-            }          
+            else if (c[0] == '-' && name == 0) {
+                ime1[i] = '\0';
+                logFileName[i] = c[0];
+                name = i;
+            }
+            else if (c[0] != '-' && name2 == 0) {
+                ime2[i-name-1] = c[0];
+                logFileName[i] = c[0];
+            }
+            else if (c[0] == '-' && name2 == 0 && c[0] != '\n' ) {
+                ime2[i-name-1] = '\0';
+                logFileName[i] = c[0];
+                name2 = 1;
+            }
+            else if (c[0] != '-' && name2 > 0 && c[0] != '\n' ){
+                logFileName[i] = c[0];
+            }
+            else { 
+                logFileName[i] = '\0';
+                break;
+            }
+            //printf("%s\n", c);
+            i++;
         }
 
-        if (father > 0) {
-                /* Parent process closes up output side of pipe */
-                close(fd[1]);
+        close(fd1);
 
-                /* Read in a string from the pipe */
-                nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
-                snprintf(logFileDir + 15, 256 - 15, "%s", readbuffer); 
-                // printf("Received string: %s", readbuffer);
-        }
-        printf("Received string: %s", readbuffer);
-        printf("Received string: %s", logFileDir);
-        wait(&status);
-        returned_status = status / 256;
-
-        // if (fcntl(fd1, F_GETFD)) { // if fd1 is not closed
-        //     close(fd1);
-        // }
-        // char ime1[64];
-        // char ime2[64];
-        // pipe(fd);
-        // if((father = fork()) == -1)
-        // {
-        //         perror("fork");
-        //         exit(1);
-        // }
-
-        // if (father == 0)  // child
-        // {
-
-        //     if( ( fd1 = open("lo", O_RDONLY, 0400 ) ) == -1 ){
-        //             write(2, "Something went wrong!\n", sizeof("Something went wrong!\n")-1);
-        //             exit(99);
-        //     }
-        //     else {
-        //             close(fd[0]);
-        //             // dup(fd1);
-        //             dup2(fd[1], 1);
-
-        //             /* Send "string" through the input side of pipe */
-        //             //write(fd[0], string, (strlen(string)+1));
-        //             execlp("head", "head", "-n", "1", "temp", NULL);
-        //     }          
-        // }
-
-        // if (father > 0) {
-        //         /* Parent process closes up output side of pipe */
-        //         close(fd[1]);
-
-        //         /* Read in a string from the pipe */
-        //         nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
-        //         printf("Received string: %s", readbuffer);
-        // }
+        printf("%s\n%s\n%s\n", ime1, ime2, logFileName);
         
-        // wait(&status);
-        // returned_status = status / 256;
+
 
         if ( father > 0 ){
             //father body
