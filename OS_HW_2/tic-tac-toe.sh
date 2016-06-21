@@ -12,19 +12,23 @@ timestamp() {
   date +"%s"
 }
 
+
+#remove:
+# exit 0
+
 echo "Име на играч 1 - O:"
 read player1
 echo "Име на играч 2 - X:"
 read player2
 echo ""
 
+
 mkdir .tic-tac-toe 2>/dev/null
 
 ts=$(timestamp)
 touch ./.tic-tac-toe/$player1-$player2-$ts.log
 
-#remove:
-exit 0
+
 
 playing='y'
 while [ "$playing" == 'y' ]

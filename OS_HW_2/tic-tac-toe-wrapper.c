@@ -7,11 +7,84 @@
 #include <string.h> // strcpy
 
 
+const int STDIN = 0;
+const int STDOUT = 1;
+const int STDERR = 2;
+
+char * returnSomeArray(char * logFileName, char * readbuffer, char * grepString) {
+        // vzemame obsh broj igri
+        int fd[2];//,  // file descriptors for the pipe, nbytes which are read from the pipe
+        int father;        
+        int status;
+        pipe(fd);
+
+        // grep na pobedi i remita
+        if((father = fork()) == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+
+        if (father == 0)  // child
+        {
+            chdir("./.tic-tac-toe");
+
+            close(fd[STDIN]); //close the side of the pipe that will not be used
+
+            dup2(fd[STDOUT], STDOUT);
+
+            execlp("grep", "grep", grepString, logFileName, NULL);
+               
+        }
+
+        close(fd[STDOUT]);
+
+        // wc na redovete varnati ot grep
+
+        int fd2[2]; // this is where the fun starts
+        pipe(fd2);
+        if((father = fork()) == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+
+        int nbytes;
+
+
+        if (father == 0)  // child
+        {
+            close(fd2[STDIN]); 
+
+            dup2(fd[STDIN], STDIN);
+            dup2(fd2[STDOUT], STDOUT);
+
+            execlp("wc", "wc", "-l", NULL);       
+        }
+
+        close(fd2[STDOUT]);
+        close(fd[STDIN]); 
+
+        readbuffer[0]='\0';
+        nbytes = read(fd2[STDIN], readbuffer, sizeof(readbuffer));
+
+        char *n4 = strrchr(readbuffer, '\n');
+        if (n4)
+            *n4 = 0;
+
+        char * allGamesCount = malloc(nbytes+1); 
+        strcpy(allGamesCount, readbuffer);
+        
+        wait(&status);
+        //returned_status = status / 256;
+
+        close(fd2[STDIN]); 
+
+        return allGamesCount;
+}
+
 main(int argc, char* argv[]){
 
-    const int STDIN = 0;
-    const int STDOUT = 1;
-    const int STDERR = 2;
 
     // we run the wrapper without arguments
     if (argc == 1) {
@@ -21,6 +94,8 @@ main(int argc, char* argv[]){
         int status;
         int returned_status;
         int father;
+        int nbytes;
+        char readbuffer[4096];
 
         if((father = fork()) == -1)
         {
@@ -113,256 +188,23 @@ main(int argc, char* argv[]){
         close(fd1);
 
         // vzemame obsh broj igri
-        int fd[2];//,  // file descriptors for the pipe, nbytes which are read from the pipe
-        pipe(fd);
-
-        // grep na pobedi i remita
-        if((father = fork()) == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-
-        if (father == 0)  // child
-        {
-            chdir("./.tic-tac-toe");
-
-            close(fd[STDIN]); //close the side of the pipe that will not be used
-
-            dup2(fd[STDOUT], STDOUT);
-
-            execlp("grep", "grep", "Печели\\|реми", logFileName, NULL);       
-        }
-
-        close(fd[STDOUT]);
-
-        // wc na redovete varnati ot grep
-
-        int fd2[2]; // this is where the fun starts
-        pipe(fd2);
-        if((father = fork()) == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-
-        int nbytes;
-        char readbuffer[4096];
-
-        if (father == 0)  // child
-        {
-            close(fd2[STDIN]); 
-
-            dup2(fd[STDIN], STDIN);
-            dup2(fd2[STDOUT], STDOUT);
-
-            execlp("wc", "wc", "-l", NULL);       
-        }
-
-        close(fd2[STDOUT]);
-        close(fd[STDIN]); 
-
-        readbuffer[0]='\0';
-        nbytes = read(fd2[STDIN], readbuffer, sizeof(readbuffer));
-
-        char *n4 = strrchr(readbuffer, '\n');
-        if (n4)
-            *n4 = 0;
-
-        char * allGamesCount = malloc(nbytes+1); 
-        strcpy(allGamesCount, readbuffer);
-        
-        wait(&status);
-        returned_status = status / 256;
-
-        close(fd2[STDIN]); 
-
-        // masovo kopirane na kod
-        // do not do this at home
-
-        pipe(fd);
-
-        if((father = fork()) == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-
-        if (father == 0)  // child
-        {
-            chdir("./.tic-tac-toe");
-
-            close(fd[STDIN]); //close the side of the pipe that will not be used
-
-            dup2(fd[STDOUT], STDOUT);
-
-            execlp("grep", "grep", "реми", logFileName, NULL);       
-        }
-
-        close(fd[STDOUT]);
-
-        // wc na redovete varnati ot grep
-        pipe(fd2);
-        if((father = fork()) == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-
-        if (father == 0)  // child
-        {
-            close(fd2[STDIN]); 
-
-            dup2(fd[STDIN], STDIN);
-            dup2(fd2[STDOUT], STDOUT);
-
-            execlp("wc", "wc", "-l", NULL);       
-        }
-
-        close(fd2[STDOUT]);
-        close(fd[STDIN]); 
-
-        readbuffer[0]='\0';
-        nbytes = read(fd2[STDIN], readbuffer, sizeof(readbuffer));
-
-        char *n3 = strrchr(readbuffer, '\n');
-        if (n3)
-            *n3 = 0;
-
-        char * remiCount = malloc(nbytes+1); 
-        strcpy(remiCount, readbuffer);
-
-        wait(&status);
-        returned_status = status / 256;
-
-        close(fd2[STDIN]); 
-
-        // masovo kopirane na kod2
-        // do not do this at home
-
-        pipe(fd);
-
-        if((father = fork()) == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-
-        if (father == 0)  // child
-        {
-            chdir("./.tic-tac-toe");
-
-            close(fd[STDIN]); //close the side of the pipe that will not be used
-
-            dup2(fd[STDOUT], STDOUT);
-
-            char * grepString = malloc(strlen(ime1)+strlen("Печели ")+1); 
-            strcpy(grepString, "Печели ");
-            strcat(grepString, ime1);
-
-            execlp("grep", "grep", grepString, logFileName, NULL);       
-        }
-
-        close(fd[STDOUT]);
-
-        // wc na redovete varnati ot grep
-        pipe(fd2);
-        if((father = fork()) == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-
-        if (father == 0)  // child
-        {
-            close(fd2[STDIN]); 
-
-            dup2(fd[STDIN], STDIN);
-            dup2(fd2[STDOUT], STDOUT);
-
-            execlp("wc", "wc", "-l", NULL);       
-        }
-
-        close(fd2[STDOUT]);
-        close(fd[STDIN]); 
-
-        readbuffer[0]='\0';
-        nbytes = read(fd2[STDIN], readbuffer, sizeof(readbuffer));
-
-        char *n1 = strrchr(readbuffer, '\n');
-        if (n1)
-            *n1 = 0;
-        char * win1 = malloc(nbytes+1); 
-        strcpy(win1, readbuffer);
-        
-        wait(&status);
-        returned_status = status / 256;
-
-        close(fd2[STDIN]); 
-
-
-        // masovo kopirane na kod3
-        // i daje raboti
-        // do not do this at home
-        pipe(fd);
-
-        if((father = fork()) == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-
-        if (father == 0)  // child
-        {
-            chdir("./.tic-tac-toe");
-
-            close(fd[STDIN]); //close the side of the pipe that will not be used
-
-            dup2(fd[STDOUT], STDOUT);
-
-            char * grepString = malloc(strlen(ime1)+strlen("Печели ")+1); 
-            strcpy(grepString, "Печели ");
-            strcat(grepString, ime2);
-
-            execlp("grep", "grep", grepString, logFileName, NULL);       
-        }
-
-        close(fd[STDOUT]);
-
-        // wc na redovete varnati ot grep
-        pipe(fd2);
-        if((father = fork()) == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-
-        if (father == 0)  // child
-        {
-            close(fd2[STDIN]); 
-
-            dup2(fd[STDIN], STDIN);
-            dup2(fd2[STDOUT], STDOUT);
-
-            execlp("wc", "wc", "-l", NULL);       
-        }
-
-        close(fd2[STDOUT]);
-        close(fd[STDIN]); 
-
-        readbuffer[0]='\0';
-        nbytes = read(fd2[STDIN], readbuffer, sizeof(readbuffer));
-
-        char *n2 = strrchr(readbuffer, '\n');
-        if (n2)
-            *n2 = 0;
-        char * win2 = malloc(nbytes+1); 
-        strcpy(win2, readbuffer);
-        
-        wait(&status);
-        returned_status = status / 256;
-
-        close(fd2[STDIN]); 
+        // int fd[2];//,  // file descriptors for the pipe, nbytes which are read from the pipe
+       
+        char * allGamesCount = returnSomeArray(logFileName, readbuffer, "Печели\\|реми");
+      
+        char * remiCount = returnSomeArray(logFileName, readbuffer, "реми");
+
+        char * grepString = malloc(strlen(ime1)+strlen("Печели ")+1); 
+        strcpy(grepString, "Печели ");
+        strcat(grepString, ime1);
+
+        char * win1 = returnSomeArray(logFileName, readbuffer, grepString);
+
+        grepString = realloc(grepString, strlen(ime1)+strlen("Печели ")+1); 
+        strcpy(grepString, "Печели ");
+        strcat(grepString, ime2);
+
+        char * win2 = returnSomeArray(logFileName, readbuffer, grepString);
 
 
         char * logfileFullPath = malloc(strlen("./.tic-tac-toe/")+strlen(logFileName)+1); 
