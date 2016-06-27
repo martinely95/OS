@@ -36,16 +36,16 @@ int main (int argc, char* argv[]) {
     }
 
     // the actual character behind the byte
-    char sym[2]="";
+    char sym;
     // end of string for the character
-    sym[1]='\0';
+    // sym[1]='\0';
 
     // skip the first 32 (human) unreadable characters
     buff = READABLE_CHARS_START; 
     for (buff; buff<READABLE_CHARS_END; buff++) {
         if (chars[buff] > 0){
-            sym[0] = buff;
-            printf("Char %s behind byte %d occurs %d times.\n", sym, buff, chars[buff]);
+            sym = buff;
+            printf("Char %c behind byte %d occurs %d times.\n", sym, buff, chars[buff]);
         }
     }
 
